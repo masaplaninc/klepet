@@ -99,7 +99,13 @@ $(document).ready(function() {
     for (var i=0; i < uporabniki.length; i++) {
       $('#seznam-uporabnikov').append(divElementEnostavniTekst(uporabniki[i]));
     }
-  });
+    
+    $('#seznam-uporabnikov div').click(function(){  
+      var vzdevek = $(this).text();
+      $("#poslji-sporocilo").val('/zasebno "'+ vzdevek + '" ')
+      $("#poslji-sporocilo").focus();
+    });
+});
 
   setInterval(function() {
     socket.emit('kanali');
@@ -112,7 +118,6 @@ $(document).ready(function() {
     procesirajVnosUporabnika(klepetApp, socket);
     return false;
   });
-  
   
 });
 
