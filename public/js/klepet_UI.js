@@ -1,7 +1,14 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
-  if (jeSmesko) {
-    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />');
+  var jeSlika = sporocilo.indexOf('"class="picture" />') > -1;
+  if (jeSmesko || jeSlika) {
+    sporocilo = sporocilo
+    .replace(/\</g, '&lt;')
+    .replace(/\>/g, '&gt;')
+    .replace(/"class="picture" \/&gt;/gi, '"class="picture" />')
+    .replace(/&lt;br&gt;&lt;img src="/gi, '<br><img src="')
+    .replace('&lt;img', '<img')
+    .replace('png\' /&gt;', 'png\' />');
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -15,6 +22,7 @@ function divElementHtmlTekst(sporocilo) {
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
   sporocilo = dodajSmeske(sporocilo);
+  sporocilo += dodajSliko(sporocilo);
   var sistemskoSporocilo;
 
   if (sporocilo.charAt(0) == '/') {
@@ -99,7 +107,7 @@ $(document).ready(function() {
     for (var i=0; i < uporabniki.length; i++) {
       $('#seznam-uporabnikov').append(divElementEnostavniTekst(uporabniki[i]));
     }
-  });
+});
 
   setInterval(function() {
     socket.emit('kanali');
@@ -112,7 +120,6 @@ $(document).ready(function() {
     procesirajVnosUporabnika(klepetApp, socket);
     return false;
   });
-  
   
 });
 
@@ -131,3 +138,13 @@ function dodajSmeske(vhodnoBesedilo) {
   }
   return vhodnoBesedilo;
 }
+
+function dodajSliko(besedilo) {
+  var slikeA = besedilo.match(/(http:\/\/|https:\/\/)\S+(.jpg|.gif|.png)\b/gi);
+  var add;
+  for (var s in slikeA) {
+   add += '<br><img src="' + slikeA[s] + '"class="picture" />';
+  }
+  return add;
+}
+
