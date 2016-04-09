@@ -54,6 +54,7 @@ function filtirirajVulgarneBesede(vhod) {
 
 $(document).ready(function() {
   var klepetApp = new Klepet(socket);
+  
 
   socket.on('vzdevekSpremembaOdgovor', function(rezultat) {
     var sporocilo;
@@ -99,7 +100,17 @@ $(document).ready(function() {
     for (var i=0; i < uporabniki.length; i++) {
       $('#seznam-uporabnikov').append(divElementEnostavniTekst(uporabniki[i]));
     }
+    
   });
+     socket.on('dregljaj', function() {	
+    $('#vsebina').jrumble();			
+    $('#vsebina').trigger('startRumble');			
+    setTimeout(function(){			
+    $('#vsebina').trigger('stopRumble');			
+	    }, 1500);	
+     });
+
+  
 
   setInterval(function() {
     socket.emit('kanali');
@@ -107,7 +118,6 @@ $(document).ready(function() {
   }, 1000);
 
   $('#poslji-sporocilo').focus();
-
   $('#poslji-obrazec').submit(function() {
     procesirajVnosUporabnika(klepetApp, socket);
     return false;
