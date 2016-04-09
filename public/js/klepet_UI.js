@@ -1,7 +1,15 @@
 function divElementEnostavniTekst(sporocilo) {
   var jeSmesko = sporocilo.indexOf('http://sandbox.lavbic.net/teaching/OIS/gradivo/') > -1;
-  if (jeSmesko) {
-    sporocilo = sporocilo.replace(/\</g, '&lt;').replace(/\>/g, '&gt;').replace('&lt;img', '<img').replace('png\' /&gt;', 'png\' />');
+  var jeYT = sporocilo.indexOf('<iframe src="https://www.youtube.com/embed/') > -1;
+  if (jeSmesko || jeYT) {
+    sporocilo = sporocilo
+    .replace(/\</g, '&lt;')
+    .replace(/\>/g, '&gt;')
+    .replace('&lt;img', '<img')
+    .replace('png\' /&gt;', 'png\' />')
+    .replace(/&lt;iframe src="https:\/\/www.youtube.com\/embed\//gi, '<br><iframe src="https://www.youtube.com/embed/')
+    .replace(/" allowfullscreen&gt;&lt;\/iframe&gt;/gi, '" allowfullscreen></iframe>');
+    
     return $('<div style="font-weight: bold"></div>').html(sporocilo);
   } else {
     return $('<div style="font-weight: bold;"></div>').text(sporocilo);
@@ -15,17 +23,20 @@ function divElementHtmlTekst(sporocilo) {
 function procesirajVnosUporabnika(klepetApp, socket) {
   var sporocilo = $('#poslji-sporocilo').val();
   sporocilo = dodajSmeske(sporocilo);
+  var video = nazaj(sporocilo); 
   var sistemskoSporocilo;
 
   if (sporocilo.charAt(0) == '/') {
     sistemskoSporocilo = klepetApp.procesirajUkaz(sporocilo);
     if (sistemskoSporocilo) {
       $('#sporocila').append(divElementHtmlTekst(sistemskoSporocilo));
+      dodajYT(video);
     }
   } else {
     sporocilo = filtirirajVulgarneBesede(sporocilo);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo));
+    dodajYT(video);
     $('#sporocila').scrollTop($('#sporocila').prop('scrollHeight'));
   }
 
@@ -76,6 +87,7 @@ $(document).ready(function() {
   socket.on('sporocilo', function (sporocilo) {
     var novElement = divElementEnostavniTekst(sporocilo.besedilo);
     $('#sporocila').append(novElement);
+    dodajYT(nazaj(sporocilo.besedilo));
   });
   
   socket.on('kanali', function(kanali) {
@@ -131,3 +143,17 @@ function dodajSmeske(vhodnoBesedilo) {
   }
   return vhodnoBesedilo;
 }
+
+ function nazaj(vnos) {
+   var yt = vnos.match(/(?:(?:http|https):\/\/www\.youtube\.com\/watch\?v=)(.{11})/gi);
+   for(var i in yt) {
+     yt[i] = yt[i].replace(/(?:(?:http|https):\/\/www\.youtube\.com\/watch\?v=)(.{11})/gi, '$1');
+    }
+   return yt;
+  }
+ 
+ function dodajYT(yt) {
+    for(var i in yt) {
+      $('#sporocila').append('<iframe src="https://www.youtube.com/embed/'+yt[i]+'" allowfullscreen></iframe>');
+    }
+  }
