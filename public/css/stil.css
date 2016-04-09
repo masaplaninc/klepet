@@ -57,3 +57,19 @@ a {
 #pomoc {
   font: 10px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+
+#seznam-uporabnikov div:hover {
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+ .picture {
+ width: 200px;
+ margin-left: 20px;
+} 
+
+ iframe {
+   width: 200px;
+   height:150px;
+   margin-left: 20px;
+}
